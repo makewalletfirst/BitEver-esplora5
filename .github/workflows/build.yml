@@ -1,0 +1,42 @@
+name: BitEver Esplora CI Build
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  validate-config:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate Docker Compose Syntax
+        run: |
+          # override 파일까지 포함하여 전체 구성이 유효한지 확인
+          docker compose -f docker-compose.yml -f docker-compose.override.yml config -q
+
+      - name: Create dummy directories for Nginx test
+        run: |
+          # Nginx가 참조하는 볼륨 경로가 로컬에 없을 경우 테스트 실패를 방지하기 위해 생성
+          mkdir -p frontend/dist
+          touch frontend/dist/index.html
+          mkdir -p nginx/stream.d
+          # 만약 electrum-stream.conf가 없다면 빈 파일 생성 (테스트용)
+          if [ ! -f nginx/electrum-stream.conf ]; then touch nginx/electrum-stream.conf; fi
+
+      - name: Verify Nginx Configuration Syntax
+        run: |
+          # Nginx 컨테이너를 임시로 띄워 설정 파일 문법(-t)만 테스트
+          # -v 옵션으로 로컬의 설정 파일들을 컨테이너 경로에 매핑
+          docker run --rm \
+            -v ${{ github.workspace }}/nginx/nginx.conf:/etc/nginx/nginx.conf:ro \
+            -v ${{ github.workspace }}/nginx/esplora-nginx.conf:/etc/nginx/conf.d/default.conf:ro \
+            -v ${{ github.workspace }}/nginx/electrum-stream.conf:/etc/nginx/streams-enabled/electrum-stream.conf:ro \
+            -v ${{ github.workspace }}/frontend/dist:/usr/share/nginx/html:ro \
+            nginx:alpine nginx -t -c /etc/nginx/nginx.conf
+
+      - name: Success Notification
+        run: echo "BitEver Esplora configuration is valid!"
