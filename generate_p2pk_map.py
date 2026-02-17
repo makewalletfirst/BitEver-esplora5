@@ -6,8 +6,8 @@ import time
 import os
 
 RPC_CMD = [
-    "/root/Bitever/src/bitcoin-cli",
-    "-datadir=/root/myfork",
+    "/home/makewalletfirst/bitever/src/bitcoin-cli",
+    "-datadir=/home/makewalletfirst/myfork",
     "-rpcuser=user",
     "-rpcpassword=pass",
     "-rpcport=8334"

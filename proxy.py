@@ -9,7 +9,7 @@ app = FastAPI()
 
 # 설정 변수
 ELECTRS_URL = "http://127.0.0.1:3002"
-RPC_CMD = ["/root/Bitever/src/bitcoin-cli", "-datadir=/root/myfork", "-rpcuser=user", "-rpcpassword=pass", "-rpcport=8334"]
+RPC_CMD = ["/root/bitever/src/bitcoin-cli", "-datadir=/root/myfork", "-rpcuser=user", "-rpcpassword=pass", "-rpcport=8334"]
 CACHE_FILE = "p2pk_scan_results.json"
 P2PK_MAP_FILE = "p2pk_map.json"
 CACHE_TTL = 300  # 5분

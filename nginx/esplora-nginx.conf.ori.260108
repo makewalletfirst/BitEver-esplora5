@@ -1,0 +1,30 @@
+server {
+  listen 80;
+  server_name _;
+
+  # (선택) 프런트 정적파일 경로. 아직 없으면 남겨두세요. 나중에 dist 넣을 예정.
+  root /usr/share/nginx/html;
+  index index.html;
+
+  # electrs Esplora API를 /api로 프록시
+  location /api/ {
+    proxy_pass http://127.0.0.1:3002/;   # ← /api를 electrs 루트로 전달
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+  }
+
+  # 선택: 웹소켓 쓰면 여기에 추가 (지금은 생략 가능)
+  # location /ws/ {
+  #   proxy_pass http://127.0.0.1:3002/ws/;
+  #   proxy_http_version 1.1;
+  #   proxy_set_header Upgrade $http_upgrade;
+  #   proxy_set_header Connection "upgrade";
+  #   proxy_set_header Host $host;
+  # }
+
+  # SPA 라우팅 지원(프런트 있을 때)
+  location / {
+    try_files $uri /index.html;
+  }
+}
